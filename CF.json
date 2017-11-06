@@ -1,0 +1,203 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09", 
+    "Description": "Create roles ready for CodeDeploy",
+    "Parameters": {
+    "Applicationname": {
+      "Type": "String",
+      "Description" : "Name of the CodedeployApplication "
+    },
+    "DeploymentGroupNamename": {
+      "Type": "String",
+      "Description" : "Name of the Deployment group"
+    },
+	"InstanceValueForEc2tagfilter": {
+      "Type": "String",
+      "Description" : "Name of the Instance Value to deploy Application"
+    }
+	    },
+	"Resources": {
+        "CodeDeployRolePolicies": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CodeDeployPolicy", 
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow", 
+                            "Action": [ "ec2:Describe*" ], 
+                            "Resource": [ "*" ]
+                        }, 
+                        {
+                            "Effect": "Allow", 
+                            "Action": [
+                            "autoscaling:CompleteLifecycleAction",
+                            "autoscaling:DeleteLifecycleHook",
+                            "autoscaling:DescribeAutoScalingGroups",
+                            "autoscaling:DescribeLifecycleHooks",
+                            "autoscaling:PutLifecycleHook",
+                            "autoscaling:RecordLifecycleActionHeartbeat",
+                            "autoscaling:CreateAutoScalingGroup",
+                            "autoscaling:UpdateAutoScalingGroup",
+                            "autoscaling:EnableMetricsCollection",
+                            "autoscaling:DescribeAutoScalingGroups",
+                            "autoscaling:DescribePolicies",
+                            "autoscaling:DescribeScheduledActions",
+                            "autoscaling:DescribeNotificationConfigurations",
+                            "autoscaling:DescribeLifecycleHooks",
+                            "autoscaling:SuspendProcesses",
+                            "autoscaling:ResumeProcesses",
+                            "autoscaling:AttachLoadBalancers",
+                            "autoscaling:PutScalingPolicy",
+                            "autoscaling:PutScheduledUpdateGroupAction",
+                            "autoscaling:PutNotificationConfiguration",
+                            "autoscaling:PutLifecycleHook",
+                            "autoscaling:DescribeScalingActivities",
+                            "autoscaling:DeleteAutoScalingGroup",
+                            "ec2:DescribeInstances",
+                            "ec2:DescribeInstanceStatus",
+                            "ec2:TerminateInstances",
+                            "tag:GetTags",
+                            "tag:GetResources",
+                            "sns:Publish",
+                            "cloudwatch:DescribeAlarms",
+                            "elasticloadbalancing:DescribeLoadBalancers",
+                            "elasticloadbalancing:DescribeInstanceHealth",
+                            "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                            "elasticloadbalancing:DeregisterInstancesFromLoadBalancer"
+                          ], 
+                            "Resource": [ "*" ]
+                        }
+                    ]
+                }, 
+                "Roles": [ { "Ref": "CodeDeployTrustRole" } ]
+            } 
+        }, 
+        "CodeDeployTrustRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "Path": "/",
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Sid": "1",
+                            "Effect": "Allow", 
+                            "Principal": {
+                                "Service": [
+                                    "codedeploy.amazonaws.com"
+                                ]
+                            }, 
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                } 
+            }
+        }, 
+        "InstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/", 
+                "Roles": [ { "Ref": "InstanceRole" } ]
+            }
+        }, 
+        "InstanceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "Path": "/",
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [ "sts:AssumeRole" ], 
+                            "Effect": "Allow", 
+                            "Principal": {
+                                "Service": [ "ec2.amazonaws.com" ]
+                            }
+                        }
+                    ]
+                }
+            }
+        }, 
+        "InstanceCloudwatchRolePolicies": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CloudwatchApplicationepolicy", 
+                "Roles": [ { "Ref": "InstanceRole" } ],
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "logs:CreateLogGroup",
+								"logs:CreateLogStream",
+								"logs:DeleteLogGroup",
+								"logs:Put*",
+								"logs:DeleteLogStream"
+                            ], 
+                            "Effect": "Allow", 
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
+		"InstanceRolePolicies": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CloudwatchApplicationeRole", 
+                "Roles": [ { "Ref": "InstanceRole" } ],
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": [
+                                "s3:Get*",
+                                "cloudwatch:PutMetricData"
+                            ], 
+                            "Effect": "Allow", 
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
+        "DeploymentApp":{
+          "Type" : "AWS::CodeDeploy::Application",
+          "Properties" : {
+            "ApplicationName" : {
+          "Ref": "Applicationname"
+        }
+          }
+        },
+        "DeploymentGroup": {
+          "Description": "Create a deployment group",
+          "Type" : "AWS::CodeDeploy::DeploymentGroup",
+          "Properties" : {
+            "ApplicationName" : {"Ref": "DeploymentApp"},
+            "DeploymentConfigName": "CodeDeployDefault.AllAtOnce",
+            "DeploymentGroupName": {"Ref": "DeploymentGroupNamename"},
+            "Ec2TagFilters" : [
+              {
+                "Key" : "Name",
+                "Value" : {"Ref": "InstanceValueForEc2tagfilter"},
+                "Type" : "KEY_AND_VALUE"
+              }
+            ],
+            "ServiceRoleArn" : {"Fn::GetAtt": 
+          [
+            "CodeDeployTrustRole",
+            "Arn"
+          ]}
+          }
+        }
+    }, 
+    "Outputs": {
+        "CodeDeployTrustRoleARN": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "CodeDeployTrustRole", 
+                    "Arn"
+                ]
+            }
+        },
+        "InstanceProfile": {
+            "Value": { "Ref": "InstanceProfile" }
+        }
+    }
+}
