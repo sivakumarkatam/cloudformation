@@ -1,0 +1,59 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09", 
+    "Description": "Create roles ready for CodeDeploy",
+    "Parameters": {
+    "Applicationname": {
+      "Type": "String",
+      "Description" : "Name of the CodedeployApplication "
+    },
+    "DeploymentGroupNamename": {
+      "Type": "String",
+      "Description" : "Name of the Deployment group"
+    },
+	"InstanceValueForEc2tagfilter": {
+      "Type": "String",
+      "Description" : "Name of the Instance Value to deploy Application"
+    }
+	    },
+	"Resources": {
+        "DeploymentApp":{
+          "Type" : "AWS::CodeDeploy::Application",
+          "Properties" : {
+            "ApplicationName" : {
+          "Ref": "Applicationname"
+        }
+          }
+        },
+        "DeploymentGroup": {
+          "Description": "Create a deployment group",
+          "Type" : "AWS::CodeDeploy::DeploymentGroup",
+          "Properties" : {
+            "ApplicationName" : {"Ref": "DeploymentApp"},
+            "DeploymentConfigName": "CodeDeployDefault.AllAtOnce",
+            "DeploymentGroupName": {"Ref": "DeploymentGroupNamename"},
+            "Ec2TagFilters" : [
+              {
+                "Key" : "Name",
+                "Value" : {"Ref": "InstanceValueForEc2tagfilter"},
+                "Type" : "KEY_AND_VALUE"
+              }
+            ],
+            "ServiceRoleArn" : {"Fn::GetAtt": 
+          [
+            "CodeDeployTrustRole",
+            "Arn"
+          ]}
+          }
+        }
+    }, 
+    "Outputs": {
+        "CodeDeployTrustRoleARN": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "CodeDeployTrustRole", 
+                    "Arn"
+                ]
+            }
+        }
+           }
+}
