@@ -37,23 +37,11 @@
                 "Value" : {"Ref": "InstanceValueForEc2tagfilter"},
                 "Type" : "KEY_AND_VALUE"
               }
-            ],
-            "ServiceRoleArn" : {"Fn::GetAtt": 
-          [
-            "CodeDeployTrustRole",
-            "Arn"
-          ]}
+            ]
+}
           }
         }
     }, 
-    "Outputs": {
-        "CodeDeployTrustRoleARN": {
-            "Value": {
-                "Fn::GetAtt": [
-                    "CodeDeployTrustRole", 
-                    "Arn"
-                ]
-            }
-        }
+   
            }
 }
