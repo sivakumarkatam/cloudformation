@@ -1,0 +1,17 @@
+[
+  {
+		"parameter_key": "Applicationname",
+		"parameter_value": "Test-app"
+
+	},
+	{
+		"parameter_key": "DeploymentGroupNamename",
+		"parameter_value": "Test-dep"
+
+	},
+	{
+		"parameter_key": "InstanceValueForEc2tagfilter",
+		"parameter_value": "siva-jenkins-test"
+
+	}
+]
