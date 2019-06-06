@@ -1,0 +1,2410 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AWS CFN for VPC.",
+  "Parameters": {
+    "ClientName": {
+      "Description": " name of Client.",
+      "Type": "String"
+    },
+    "EnvironmentName": {
+      "Default": "DEV",
+      "Description": "Either Prod, Staging, Demo etc. ",
+      "Type": "String"
+    },
+    "VPCCidrBlock": {
+      "Description": "CIDR block of VPC being created",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "PublicSubnetCidrBlockA": {
+      "Description": "CIDR block of Public Subnet in AZ A",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "PublicSubnetCidrBlockB": {
+      "Description": "CIDR block of Public Subnet in AZ B",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "PublicSubnetCidrBlockC": {
+      "Description": "CIDR block of Public Subnet in AZ B",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "NginxSubnetCidrBlockA": {
+      "Description": "CIDR block of nginx Subnet in AZ A",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "NginxSubnetCidrBlockB": {
+      "Description": "CIDR block of nginx Subnet in AZ B",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "NginxSubnetCidrBlockC": {
+      "Description": "CIDR block of nginx Subnet in AZ C",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "WebServerSubnetCidrBlockA": {
+      "Description": "CIDR block of WebServer Subnet in AZ A",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "WebServerSubnetCidrBlockB": {
+      "Description": "CIDR block of WebServer Subnet in AZ B",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "WebServerSubnetCidrBlockC": {
+      "Description": "CIDR block of WebServer Subnet in AZ C",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "DBSubnetCidrBlockA": {
+      "Description": "CIDR block of Db Subnet in AZ A",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "DBSubnetCidrBlockB": {
+      "Description": "CIDR block of Db Subnet in AZ B",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "DBSubnetCidrBlockC": {
+      "Description": "CIDR block of Db Subnet in AZ C",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    },
+    "MasterCidrBlock": {
+      "Description": "CIDR block of VPC of Master Account",
+      "Type": "String",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid private CIDR range."
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "Environment Configuration"
+          },
+          "Parameters": [
+            "ClientName",
+            "EnvironmentName",
+            "VPCCidrBlock"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Public Layer Configuration"
+          },
+          "Parameters": [
+            "PublicSubnetCidrBlockA",
+            "PublicSubnetCidrBlockB",
+            "PublicSubnetCidrBlockC"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Nginx Layer Configuration"
+          },
+          "Parameters": [
+            "NginxSubnetCidrBlockA",
+            "NginxSubnetCidrBlockB",
+            "NginxSubnetCidrBlockC"
+          ]
+        },
+        {
+          "Label": {
+            "default": "WebServer Layer Configuration"
+          },
+          "Parameters": [
+            "WebServerSubnetCidrBlockA",
+            "WebServerSubnetCidrBlockB",
+            "WebServerSubnetCidrBlockC"
+          ]
+        },
+        {
+          "Label": {
+            "default": "Database Layer Configuration"
+          },
+          "Parameters": [
+            "DatabaseSubnetCidrBlockA",
+            "DatabaseSubnetCidrBlockB",
+            "DatabaseSubnetCidrBlockC"
+          ]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": {
+          "Ref": "VPCCidrBlock"
+        },
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "false",
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "VPC"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "Ipv6VPCCidrBlock": {
+      "Type": "AWS::EC2::VPCCidrBlock",
+      "Properties": {
+        "AmazonProvidedIpv6CidrBlock": true,
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "PublicSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "a"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "PublicSubnetCidrBlockA"
+        },
+        "MapPublicIpOnLaunch": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "PublicSubnet-A"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "PublicSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "b"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "PublicSubnetCidrBlockB"
+        },
+        "MapPublicIpOnLaunch": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "PublicSubnet-B"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "PublicSubnetC": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "c"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "PublicSubnetCidrBlockC"
+        },
+        "MapPublicIpOnLaunch": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "PublicSubnet-C"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "NginxSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "a"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "NginxSubnetCidrBlockA"
+        },
+        "MapPublicIpOnLaunch": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "NginxSubnet-A"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "NginxSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "b"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "NginxSubnetCidrBlockB"
+        },
+        "MapPublicIpOnLaunch": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "NginxSubnet-B"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "NginxSubnetC": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "c"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "NginxSubnetCidrBlockC"
+        },
+        "MapPublicIpOnLaunch": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "NginxSubnet-C"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "WebServerSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "a"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "WebServerSubnetCidrBlockA"
+        },
+        "MapPublicIpOnLaunch": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "WebServerSubnet-A"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "WebServerSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "b"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "WebServerSubnetCidrBlockB"
+        },
+        "MapPublicIpOnLaunch": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "WebServerSubnet-B"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "WebServerSubnetC": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "c"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "WebServerSubnetCidrBlockC"
+        },
+        "MapPublicIpOnLaunch": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "WebServerSubnet-C"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "DBSubnetA": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "a"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "DBSubnetCidrBlockA"
+        },
+        "MapPublicIpOnLaunch": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "DBSubnet-A"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "DBSubnetB": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "b"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "DBSubnetCidrBlockB"
+        },
+        "MapPublicIpOnLaunch": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "DBSubnet-B"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "DBSubnetC": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "AWS::Region"
+              },
+              "c"
+            ]
+          ]
+        },
+        "CidrBlock": {
+          "Ref": "DBSubnetCidrBlockC"
+        },
+        "MapPublicIpOnLaunch": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "DBSubnet-C"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "IGW": {
+      "Type": "AWS::EC2::InternetGateway",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "IGW"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "VPCIGWAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "DependsOn": [
+        "VPC",
+        "IGW"
+      ],
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "IGW"
+        },
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "Public-RT"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "PublicRTEntry": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": [
+        "VPCIGWAttachment"
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "IGW"
+        },
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        }
+      }
+    },
+    "PublicRTSubnetAssociationA": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": [
+        "PublicRouteTable",
+        "PublicSubnetA"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnetA"
+        }
+      }
+    },
+    "PublicRTSubnetAssociationB": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": [
+        "PublicRouteTable",
+        "PublicSubnetB"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnetB"
+        }
+      }
+    },
+    "PublicRTSubnetAssociationC": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": [
+        "PublicRouteTable",
+        "PublicSubnetC"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnetC"
+        }
+      }
+    },
+    "PrivateRTEgressOnlyInternetGateway": {
+      "Type": "AWS::EC2::EgressOnlyInternetGateway",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      }
+    },
+    "PrivateRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "Private-RT"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "PrivateRTEntry": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": [
+        "PrivateRouteTable",
+        "PrivateRTEgressOnlyInternetGateway"
+      ],
+      "Properties": {
+        "DestinationIpv6CidrBlock": "::/0",
+        "EgressOnlyInternetGatewayId": {
+          "Ref": "PrivateRTEgressOnlyInternetGateway"
+        },
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable"
+        }
+      }
+    },
+    "PrivateRTSubnetAssociationNginxA": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": [
+        "PrivateRouteTable",
+        "NginxSubnetA"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "NginxSubnetA"
+        }
+      }
+    },
+    "PrivateRTSubnetAssociationNginxB": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": [
+        "PrivateRouteTable",
+        "NginxSubnetB"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "NginxSubnetB"
+        }
+      }
+    },
+    "PrivateRTSubnetAssociationNginxC": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": [
+        "PrivateRouteTable",
+        "NginxSubnetC"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "NginxSubnetC"
+        }
+      }
+    },
+    "PrivateRTSubnetAssociationWebServerA": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": [
+        "PrivateRouteTable",
+        "WebServerSubnetA"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "WebServerSubnetA"
+        }
+      }
+    },
+    "PrivateRTSubnetAssociationWebServerB": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": [
+        "PrivateRouteTable",
+        "WebServerSubnetB"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "WebServerSubnetB"
+        }
+      }
+    },
+    "PrivateRTSubnetAssociationWebServerC": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": [
+        "PrivateRouteTable",
+        "WebServerSubnetC"
+      ],
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "WebServerSubnetC"
+        }
+      }
+    },
+    "PublicNetworkAcl": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "PublicNACL"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "PublicNetworkAclEntryEgressRule102": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        },
+        "RuleNumber": "102",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "Egress": "true",
+        "CidrBlock": "0.0.0.0/0",
+        "Icmp": {
+          "Code": "-1",
+          "Type": "-1"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        }
+      }
+    },
+    "PublicNetworkAclEntryIngressRule102": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        },
+        "RuleNumber": "102",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "Egress": "false",
+        "CidrBlock": "0.0.0.0/0",
+        "Icmp": {
+          "Code": "-1",
+          "Type": "-1"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        }
+      }
+    },
+    "PublicNetworkAclEntryEgressRule101": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        },
+        "RuleNumber": "101",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "Egress": "true",
+        "Ipv6CidrBlock": "::/0",
+        "Icmp": {
+          "Code": "-1",
+          "Type": "-1"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        }
+      }
+    },
+    "PublicNetworkAclEntryInressRule101": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        },
+        "RuleNumber": "101",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "Egress": "false",
+        "Ipv6CidrBlock": "::/0",
+        "Icmp": {
+          "Code": "-1",
+          "Type": "-1"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        }
+      }
+    },
+    "PublicSubnetNetworkAclAssociation1": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "PublicSubnetA"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnetA"
+        },
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        }
+      }
+    },
+    "PublicSubnetNetworkAclAssociation2": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "PublicSubnetB"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnetB"
+        },
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        }
+      }
+    },
+    "PublicSubnetNetworkAclAssociation3": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "PublicSubnetC"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnetC"
+        },
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        }
+      }
+    },
+    "NginxNetworkAcl": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "NginxNACL"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "NginxSubnetNetworkAclAssociation1": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "NginxSubnetA"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "NginxSubnetA"
+        },
+        "NetworkAclId": {
+          "Ref": "NginxNetworkAcl"
+        }
+      }
+    },
+    "NginxSubnetNetworkAclAssociation2": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "NginxSubnetB"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "NginxSubnetB"
+        },
+        "NetworkAclId": {
+          "Ref": "NginxNetworkAcl"
+        }
+      }
+    },
+    "NginxSubnetNetworkAclAssociation3": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "NginxSubnetC"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "NginxSubnetC"
+        },
+        "NetworkAclId": {
+          "Ref": "NginxNetworkAcl"
+        }
+      }
+    },
+    "NginxNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "NginxNetworkAcl"
+        },
+        "RuleNumber": "100",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "Egress": "true",
+        "CidrBlock": {
+          "Ref": "NginxSubnetCidrBlockA"
+        },
+        "Icmp": {
+          "Code": "-1",
+          "Type": "-1"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        }
+      }
+    },
+    "WebServerNetworkAcl": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "WebServerNACL"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "WebServerSubnetNetworkAclAssociation1": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "WebServerSubnetA"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "WebServerSubnetA"
+        },
+        "NetworkAclId": {
+          "Ref": "WebServerNetworkAcl"
+        }
+      }
+    },
+    "WebServerSubnetNetworkAclAssociation2": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "WebServerSubnetB"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "WebServerSubnetB"
+        },
+        "NetworkAclId": {
+          "Ref": "WebServerNetworkAcl"
+        }
+      }
+    },
+    "WebServerSubnetNetworkAclAssociation3": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "WebServerSubnetC"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "WebServerSubnetC"
+        },
+        "NetworkAclId": {
+          "Ref": "WebServerNetworkAcl"
+        }
+      }
+    },
+    "WebNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "WebServerNetworkAcl"
+        },
+        "RuleNumber": "100",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "Egress": "true",
+        "CidrBlock": {
+          "Ref": "WebServerSubnetCidrBlockA"
+        },
+        "Icmp": {
+          "Code": "-1",
+          "Type": "-1"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        }
+      }
+    },
+    "DBNetworkAcl": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "DBNACL"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "DBSubnetNetworkAclAssociation1": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "DBSubnetA"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "DBSubnetA"
+        },
+        "NetworkAclId": {
+          "Ref": "DBNetworkAcl"
+        }
+      }
+    },
+    "DBSubnetNetworkAclAssociation2": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "DBSubnetB"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "DBSubnetB"
+        },
+        "NetworkAclId": {
+          "Ref": "DBNetworkAcl"
+        }
+      }
+    },
+    "DBSubnetNetworkAclAssociation3": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "DependsOn": [
+        "DBSubnetC"
+      ],
+      "Properties": {
+        "SubnetId": {
+          "Ref": "DBSubnetC"
+        },
+        "NetworkAclId": {
+          "Ref": "DBNetworkAcl"
+        }
+      }
+    },
+    "DBNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "DBNetworkAcl"
+        },
+        "RuleNumber": "100",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "Egress": "true",
+        "CidrBlock": {
+          "Ref": "DBSubnetCidrBlockA"
+        },
+        "Icmp": {
+          "Code": "-1",
+          "Type": "-1"
+        },
+        "PortRange": {
+          "From": "53",
+          "To": "53"
+        }
+      }
+    },
+    "NLBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "GroupDescription": "SG for Network Load Balancer",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "NLB-SG"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "ALBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "DependsOn": [
+        "VPC",
+        "NginxSecurityGroup"
+      ],
+      "Properties": {
+        "GroupDescription": "SG for Application Load Balancer",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "SourceSecurityGroupId": {
+              "Ref": "NginxSecurityGroup"
+            }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "ALB-SG"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "DBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "DependsOn": [
+        "ALBSecurityGroup"
+      ],
+      "Properties": {
+        "GroupDescription": "SG for Database Servers",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 3306,
+            "ToPort": 3306,
+            "SourceSecurityGroupId": {
+              "Ref": "NginxSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 3306,
+            "ToPort": 3306,
+            "CidrIp": {
+              "Ref": "MasterCidrBlock"
+            }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "DB-SG"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "NginxSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "DependsOn": [
+        "NLBSecurityGroup"
+      ],
+      "Properties": {
+        "GroupDescription": "SG for Nginx Servers",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "SourceSecurityGroupId": {
+              "Ref": "NLBSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "SourceSecurityGroupId": {
+              "Ref": "NLBSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIp": {
+              "Ref": "MasterCidrBlock"
+            }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "Nginx-SG"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "WebSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "DependsOn": [
+        "ALBSecurityGroup"
+      ],
+      "Properties": {
+        "GroupDescription": "SG for RPS Servers",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "SourceSecurityGroupId": {
+              "Ref": "ALBSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIp": {
+              "Ref": "MasterCidrBlock"
+            }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "Web-SG"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    },
+    "CacheSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "DependsOn": [
+        "VPC"
+      ],
+      "Properties": {
+        "GroupDescription": "SG for redis cache",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 6379,
+            "ToPort": 6379,
+            "SourceSecurityGroupId": {
+              "Ref": "NginxSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 6379,
+            "ToPort": 6379,
+            "SourceSecurityGroupId": {
+              "Ref": "WebSecurityGroup"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 6379,
+            "ToPort": 6379,
+            "CidrIp": {
+              "Ref": "MasterCidrBlock"
+            }
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  {
+                    "Ref": "ClientName"
+                  },
+                  {
+                    "Ref": "EnvironmentName"
+                  },
+                  "Cache-SG"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Environment",
+            "Value": {
+              "Ref": "EnvironmentName"
+            }
+          },
+          {
+            "Key": "CreatedBy",
+            "Value": "Sivakumar"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "VPCIDOP": {
+      "Description": "VPC ID being created",
+      "Value": {
+        "Ref": "VPC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-VPC"
+        }
+      }
+    },
+    "VPCCIDROP": {
+      "Description": "CIDR of VPCbeing created",
+      "Value": {
+        "Ref": "VPCCidrBlock"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-VPCCidrBlock"
+        }
+      }
+    },
+    "PublicSubnetAOP": {
+      "Description": "Subnet ID of Public Subnet A",
+      "Value": {
+        "Ref": "PublicSubnetA"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PublicSubnetA"
+        }
+      }
+    },
+    "PublicSubnetBOP": {
+      "Description": "Subnet ID of Public Subnet B",
+      "Value": {
+        "Ref": "PublicSubnetB"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PublicSubnetB"
+        }
+      }
+    },
+    "PublicSubnetCOP": {
+      "Description": "Subnet ID of Public Subnet C",
+      "Value": {
+        "Ref": "PublicSubnetC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PublicSubnetC"
+        }
+      }
+    },
+    "NginxSubnetAOP": {
+      "Description": "Subnet ID of Nginx Subnet A",
+      "Value": {
+        "Ref": "NginxSubnetA"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-NginxSubnetA"
+        }
+      }
+    },
+    "NginxSubnetBOP": {
+      "Description": "Subnet ID of Nginx Subnet B",
+      "Value": {
+        "Ref": "NginxSubnetB"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-NginxSubnetB"
+        }
+      }
+    },
+    "NginxSubnetCOP": {
+      "Description": "Subnet ID of Nginx Subnet C",
+      "Value": {
+        "Ref": "NginxSubnetC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-NginxSubnetC"
+        }
+      }
+    },
+    "WebSubnetAOP": {
+      "Description": "Subnet ID of WebServer Subnet A",
+      "Value": {
+        "Ref": "WebServerSubnetA"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-WebServerSubnetA"
+        }
+      }
+    },
+    "WebSubnetBOP": {
+      "Description": "Subnet ID of WebServer Subnet B",
+      "Value": {
+        "Ref": "WebServerSubnetB"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-WebServerSubnetB"
+        }
+      }
+    },
+    "WebSubnetCOP": {
+      "Description": "Subnet ID of WebServer Subnet C",
+      "Value": {
+        "Ref": "WebServerSubnetC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-WebServerSubnetC"
+        }
+      }
+    },
+    "DBSubnetAOP": {
+      "Description": "Subnet ID of DB Subnet A",
+      "Value": {
+        "Ref": "DBSubnetA"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBSubnetA"
+        }
+      }
+    },
+    "DBSubnetBOP": {
+      "Description": "Subnet ID of DB Subnet B",
+      "Value": {
+        "Ref": "DBSubnetB"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBSubnetB"
+        }
+      }
+    },
+    "DBSubnetCOP": {
+      "Description": "Subnet IDs of DB Subnet C",
+      "Value": {
+        "Ref": "DBSubnetC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBSubnetC"
+        }
+      }
+    },
+    "PublicNACLOP": {
+      "Description": "ID of Public NACL",
+      "Value": {
+        "Ref": "PublicNetworkAcl"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PublicNetworkAcl"
+        }
+      }
+    },
+    "NginxNACLOP": {
+      "Description": "ID of Nginx NACL",
+      "Value": {
+        "Ref": "NginxNetworkAcl"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-NginxNetworkAcl"
+        }
+      }
+    },
+    "WebNACLOP": {
+      "Description": "ID of WebServer NACL",
+      "Value": {
+        "Ref": "WebServerNetworkAcl"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-WebServerNetworkAcl"
+        }
+      }
+    },
+    "DBNACLOP": {
+      "Description": "ID of database NACL",
+      "Value": {
+        "Ref": "DBNetworkAcl"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBNetworkAcl"
+        }
+      }
+    },
+    "PublicSubnetACIDROP": {
+      "Description": "CIDR of PublicSubnetA",
+      "Value": {
+        "Ref": "PublicSubnetCidrBlockA"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PublicSubnetCidrBlockA"
+        }
+      }
+    },
+    "PublicSubnetBCIDROP": {
+      "Description": "CIDR of PublicSubnetB",
+      "Value": {
+        "Ref": "PublicSubnetCidrBlockB"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PublicSubnetCidrBlockB"
+        }
+      }
+    },
+    "PublicSubnetCCIDROP": {
+      "Description": "CIDR of PublicSubnetC",
+      "Value": {
+        "Ref": "PublicSubnetCidrBlockC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-PublicSubnetCidrBlockC"
+        }
+      }
+    },
+    "NginxSubnetACIDROP": {
+      "Description": "CIDR of NginxSubnetA",
+      "Value": {
+        "Ref": "NginxSubnetCidrBlockA"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-NginxSubnetCidrBlockA"
+        }
+      }
+    },
+    "NginxSubnetBCIDROP": {
+      "Description": "CIDR of NginxSubnetB",
+      "Value": {
+        "Ref": "NginxSubnetCidrBlockB"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-NginxSubnetCidrBlockB"
+        }
+      }
+    },
+    "NginxSubnetCCIDROP": {
+      "Description": "CIDR of NginxSubnetC",
+      "Value": {
+        "Ref": "NginxSubnetCidrBlockC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-NginxSubnetCidrBlockC"
+        }
+      }
+    },
+    "WebSubnetACIDROP": {
+      "Description": "CIDR of WebSubnetA",
+      "Value": {
+        "Ref": "WebServerSubnetCidrBlockA"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-WebServerSubnetCidrBlockA"
+        }
+      }
+    },
+    "WebSubnetBCIDROP": {
+      "Description": "CIDR of WebSubnetB",
+      "Value": {
+        "Ref": "WebServerSubnetCidrBlockB"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-WebServerSubnetCidrBlockB"
+        }
+      }
+    },
+    "WebSubnetCCIDROP": {
+      "Description": "CIDR of WebSubnetC",
+      "Value": {
+        "Ref": "WebServerSubnetCidrBlockC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-WebServerSubnetCidrBlockC"
+        }
+      }
+    },
+    "DBSubnetACIDROP": {
+      "Description": "CIDR of DBSubnetA",
+      "Value": {
+        "Ref": "DBSubnetCidrBlockA"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBSubnetCidrBlockA"
+        }
+      }
+    },
+    "DBSubnetBCIDROP": {
+      "Description": "CIDR of DBSubnetB",
+      "Value": {
+        "Ref": "DBSubnetCidrBlockB"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBSubnetCidrBlockB"
+        }
+      }
+    },
+    "DBSubnetCCIDROP": {
+      "Description": "CIDR of DBSubnetC",
+      "Value": {
+        "Ref": "DBSubnetCidrBlockC"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBSubnetCidrBlockC"
+        }
+      }
+    },
+    "NLBSecurityGroupOP": {
+      "Description": "NLBSecurityGroup ID",
+      "Value": {
+        "Ref": "NLBSecurityGroup"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-NLBSecurityGroup"
+        }
+      }
+    },
+    "ALBSecurityGroupOP": {
+      "Description": "ALBSecurityGroup ID",
+      "Value": {
+        "Ref": "ALBSecurityGroup"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-ALBSecurityGroup"
+        }
+      }
+    },
+    "NginxSecurityGroupOP": {
+      "Description": "NginxSecurityGroup ID",
+      "Value": {
+        "Ref": "NginxSecurityGroup"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-NginxSecurityGroup"
+        }
+      }
+    },
+    "WebSecurityGroupOP": {
+      "Description": "WebS SecurityGroup ID",
+      "Value": {
+        "Ref": "WebSecurityGroup"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-WebSecurityGroup"
+        }
+      }
+    },
+    "DBSecurityGroupOP": {
+      "Description": "DBSecurityGroup ID",
+      "Value": {
+        "Ref": "DBSecurityGroup"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-DBSecurityGroup"
+        }
+      }
+    },
+    "CacheSecurityGroupOP": {
+      "Description": "Cache Security Group ID",
+      "Value": {
+        "Ref": "CacheSecurityGroup"
+      },
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-CacheSecurityGroup"
+        }
+      }
+    }
+  }
+}
